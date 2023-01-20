@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chat App Socket.io</title>
+  <link rel="stylesheet" href="./assets/css/style.min.css">
+</head>
+
+<body>
+  <div class="chaveInsert" style="display:none">
+    <span>Chave: </span>
+    <input type="password" id="chave">
+  </div>
+  <div class="container">
+    <div class="row chat-row">
+      <div class="chat-content">
+        <ul> </ul>
+      </div>
+      <div class="chat-section">
+        <div class="chat-box">
+          <div class="chat-input bg-primary" id="chatInput" contenteditable=""></div>
+          <span class="chat-btn" id="send-file">
+            <i class="fa fa-paperclip fa-lg"></i>
+          </span>
+          <span class="chat-btn" id="crypt-key">
+            <i class="fa fa-key fa-lg"></i>
+          </span>
+          <input type="file" id="file" style="display:none">
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/components/core-min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/components/sha256.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/components/enc-base64.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/aes.js"></script>
+  <script src="./assets/js/functions.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"
+    integrity="sha384-LzhRnpGmQP+lOvWruF/lgkcqD+WDVt9fU3H4BWmwP5u5LTmkUGafMcpZKNObVMLU"
+    crossorigin="anonymous"></script>
+  <script src="./assets/js/script.js"></script>
+  <script src="https://kit.fontawesome.com/9c8f92da23.js" crossorigin="anonymous"></script>
+</body>
+
+</html>
