@@ -1,5 +1,5 @@
 const express = require('express');
-
+const fs = require('fs');
 const app = express();
 
 app.get('/teste', (req, res) => {
@@ -26,6 +26,12 @@ io.on('connection', (socket) => {
 
         // io.sockets.emit('sendChatToClient', message);
         socket.broadcast.emit('sendChatToClient', message);
+    });
+    
+    socket.on("sendFile", (file) => {
+        console.log(file);
+        //console.log(file.toString('base64'));
+        socket.broadcast.emit('sendFileToClients', file.toString('base64'));
     });
 
 

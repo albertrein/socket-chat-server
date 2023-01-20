@@ -56,6 +56,9 @@
                         <div class="chat-input bg-primary" id="chatInput" contenteditable="">
 
                         </div>
+                        <div class="">
+                          <input type="file" id="file">
+                      </div>
                     </div>
                 </div>
             </div>
@@ -82,7 +85,7 @@
           let mensagens = [];
 
           $(function() {
-              let ip_address = '127.0.0.1';
+              let ip_address = '192.168.1.36';
               let socket_port = '3000';
               let socket = io(ip_address + ':' + socket_port);
               let chatInput = $('#chatInput');
@@ -102,8 +105,32 @@
                 adicionaNovaMensagem(message);
                 renderListaMensagens();
               });
-          });
 
+              socket.on('sendFileToClients', image => {
+                console.log('ok')
+                const img = new Image();
+                // change image type to whatever you use, or detect it in the backend 
+                // and send it if you support multiple extensions
+                img.src = `data:image/jpg;base64,${image}`; 
+                document.body.appendChild(img);
+              });
+
+              document.getElementById('file').addEventListener('change', function() {
+
+                console.log(this.files[0])
+                
+                /*const reader = new FileReader();
+                reader.onload = function() {
+                  const bytes = new Uint8Array(this.result);
+                  console.log(bytes)
+                  //socket.emit('sendFile', bytes);
+                };
+                reader.readAsArrayBuffer(this.files[0]);
+                */
+                socket.emit('sendFile', this.files[0]);
+
+              });
+          });
           adicionaNovaMensagem = (novaMensagem) => {
             mensagens.push(novaMensagem);
           }
@@ -115,6 +142,8 @@
               $('.chat-content ul').append(`<li>${decrypt(msg, chaveAtual)}</li>`);
             });
           }
+
+          
         </script>
     </body>
 </html>
