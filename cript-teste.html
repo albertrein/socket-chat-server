@@ -40,7 +40,7 @@
 
         <div class="chaveInsert" style="position: absolute;top: 0;right: 0;">
             <span>Chave: </span>
-            <input type="password">
+            <input type="password" id="chave">
         </div>
 
         <div class="container" style="position: fixed;bottom: 0;">
@@ -67,11 +67,11 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/components/enc-base64.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/aes.js"></script>
         <script>
-          encript = (entradaEncrypt, chave) => {
+          encrypt = (entradaEncrypt, chave) => {
             return CryptoJS.AES.encrypt(entradaEncrypt, chave).toString()
           }
           
-          decript = (entradaDecrypt, chave) => {
+          decrypt = (entradaDecrypt, chave) => {
             return CryptoJS.AES.decrypt(entradaDecrypt, chave).toString(CryptoJS.enc.Utf8)
           }
         </script>
@@ -79,24 +79,42 @@
         <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
         <script src="https://cdn.socket.io/4.0.1/socket.io.min.js" integrity="sha384-LzhRnpGmQP+lOvWruF/lgkcqD+WDVt9fU3H4BWmwP5u5LTmkUGafMcpZKNObVMLU" crossorigin="anonymous"></script>
         <script>
-            $(function() {
-                let ip_address = '127.0.0.1';
-                let socket_port = '3000';
-                let socket = io(ip_address + ':' + socket_port);
-                let chatInput = $('#chatInput');
-                chatInput.keypress(function(e) {
-                    let message = $(this).html();
-                    console.log(message);
-                    if(e.which === 13 && !e.shiftKey) {
-                        socket.emit('sendChatToServer', message);
-                        chatInput.html('');
-                        return false;
-                    }
-                });
-                socket.on('sendChatToClient', (message) => {
-                    $('.chat-content ul').append(`<li>${message}</li>`);
-                });
+          let mensagens = [];
+
+          $(function() {
+              let ip_address = '127.0.0.1';
+              let socket_port = '3000';
+              let socket = io(ip_address + ':' + socket_port);
+              let chatInput = $('#chatInput');
+              chatInput.keypress(function(e) {
+                  let message = $(this).html();
+                  //console.log(message);
+                  if(e.which === 13 && !e.shiftKey) {
+                    chaveAtual = $('#chave').val()
+                    socket.emit('sendChatToServer', encrypt(message, chaveAtual));
+                    adicionaNovaMensagem(encrypt(message, chaveAtual));
+                    chatInput.html('');
+                    return false;
+                  }
+              });
+
+              socket.on('sendChatToClient', (message) => {
+                adicionaNovaMensagem(message);
+                renderListaMensagens();
+              });
+          });
+
+          adicionaNovaMensagem = (novaMensagem) => {
+            mensagens.push(novaMensagem);
+          }
+
+          renderListaMensagens = () => {
+            $('.chat-content ul').html('');
+            chaveAtual = $('#chave').val()
+            mensagens.forEach((msg) => {
+              $('.chat-content ul').append(`<li>${decrypt(msg, chaveAtual)}</li>`);
             });
+          }
         </script>
     </body>
 </html>

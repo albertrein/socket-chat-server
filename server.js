@@ -6,6 +6,10 @@ app.get('/teste', (req, res) => {
     res.sendFile(__dirname +'/teste.html')
 })
 
+app.get('/cript', (req, res) => {
+    res.sendFile(__dirname +'/cript-teste.html')
+})
+
 const server = require('http').createServer(app);
 
 
