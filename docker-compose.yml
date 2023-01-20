@@ -1,0 +1,16 @@
+version: "3.3"
+
+networks:
+  intranet_server_network:
+
+services:
+  intranet_server:
+    container_name: intranet_server_container
+    build: .
+    volumes:
+      - ./:/usr/src/app
+    ports:
+      - "3000:3000"
+    networks:
+      - intranet_server_network
+    command: "npm start"
