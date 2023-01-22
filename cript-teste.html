@@ -85,7 +85,7 @@
           let mensagens = [];
 
           $(function() {
-              let ip_address = '192.168.1.36';
+              let ip_address = '127.0.0.1';
               let socket_port = '3000';
               let socket = io(ip_address + ':' + socket_port);
               let chatInput = $('#chatInput');
@@ -109,17 +109,26 @@
                 renderListaMensagens();
               });
 
-              socket.on('receivedFiles', image => {
-                imgSrc = `data:image/jpg;base64,${image}`; 
-                adicionaNovaImagem('outros', imgSrc);
+              socket.on('receivedFiles', fileReceived => {
+                if(fileReceived.extensao.includes('image')){
+                  imgSrc = `data:${fileReceived.extensao};base64,${fileReceived.arquivo}`;
+                  adicionaNovaImagem('outros', imgSrc);
+                }else{
+                  fileSrc = `data:${fileReceived.extensao};base64,${fileReceived.arquivo}`;
+                  adicionaNovoDocumento('outros', fileSrc);
+                }
                 renderListaMensagens();
                 //document.body.appendChild(img);
               });
 
               document.getElementById('file').addEventListener('change', function() {
-                //console.log(this.files[0])                
-                socket.emit('sendFile', this.files[0]);
-                adicionaNovaImagem('meu', URL.createObjectURL(this.files[0]));
+                let arquivo = this.files[0];
+                socket.emit('sendFile', {"arquivo": arquivo, "extensao": arquivo.type});
+                if(arquivo.type.includes('image')){
+                  adicionaNovaImagem('meu', URL.createObjectURL(arquivo));
+                }else{                  
+                  adicionaNovoDocumento('meu', URL.createObjectURL(arquivo));
+                }
                 renderListaMensagens();
               });
           });
@@ -127,11 +136,15 @@
 
 
           adicionaNovaMensagem = (origem, novaMensagem) => {
-            mensagens.push({"origem": origem, "mensagem": novaMensagem, "isImg": false});
+            mensagens.push({"origem": origem, "mensagem": novaMensagem, "type": 'mensagem'});
           }
             
           adicionaNovaImagem = (origem, imagemSrc) => {
-            mensagens.push({"origem": origem, "mensagem": imagemSrc, "isImg": true});
+            mensagens.push({"origem": origem, "mensagem": imagemSrc, "type": 'imagem'});
+          }
+          
+          adicionaNovoDocumento = (origem, fileSrc) => {
+            mensagens.push({"origem": origem, "mensagem": fileSrc, "type": 'documento'});
           }
 
           renderListaMensagens = () => {
@@ -139,22 +152,26 @@
             chaveAtual = $('#chave').val()
             mensagens.forEach((msg) => {
               if(msg.origem == "meu"){
-                if(msg.isImg){
+                if(msg.type == "imagem"){
                   $('.chat-content ul').append(`<li style='text-align: right;'><img src='${msg.mensagem}'></li>`);
-                }else{
+                }else if(msg.type == "mensagem"){
                   $('.chat-content ul').append(`<li style='text-align: right;'>${decrypt(msg.mensagem, chaveAtual)}</li>`);
+                }else{
+                  $('.chat-content ul').append(`<li style='text-align: right;'><a download='documento.pdf' href='${msg.mensagem}'>Documento</a></li>`);
                 }
               }else{
-                if(msg.isImg){
-                  $('.chat-content ul').append(`<li><img src='${msg.mensagem}'></li>`);
+                if(msg.type == "imagem"){
+                  $('.chat-content ul').append(`<li style='text-align: left;'><img src='${msg.mensagem}'></li>`);
+                }else if(msg.type == "mensagem"){
+                  $('.chat-content ul').append(`<li style='text-align: left;'>${decrypt(msg.mensagem, chaveAtual)}</li>`);
                 }else{
-                  $('.chat-content ul').append(`<li>${decrypt(msg.mensagem, chaveAtual)}</li>`);
+                  $('.chat-content ul').append(`<li style='text-align: left;'><a download='documento.pdf' href='${msg.mensagem}'>Documento</a></li>`);
                 }
               }
             });
           }
 
-          
-        </script>
+
+      </script>
     </body>
 </html>

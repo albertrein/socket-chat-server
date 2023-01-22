@@ -31,7 +31,7 @@ io.on('connection', (socket) => {
     socket.on("sendFile", (file) => {
         console.log(file);
         //console.log(file.toString('base64'));
-        socket.broadcast.emit('receivedFiles', file.toString('base64'));
+        socket.broadcast.emit('receivedFiles', {"arquivo" : file.arquivo.toString('base64'), "extensao" : file.extensao});
     });
 
 
