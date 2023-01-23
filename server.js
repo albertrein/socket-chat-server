@@ -37,6 +37,13 @@ io.on('connection', (socket) => {
         socket.broadcast.emit('receivedFiles', {"arquivo" : file.arquivo.toString('base64'), "extensao" : file.extensao});
     });
 
+    socket.on('startTypingServer', (e) => {
+        socket.broadcast.emit('typingStartClient', 'Alguém está digitando ...');
+    });
+
+    socket.on('stopTypingServer', (e) => {
+        socket.broadcast.emit('typingStopClient', 'Alguém parou de digitar.');
+    });
 
     socket.on('disconnect', (socket) => {
         console.log('Disconnect');

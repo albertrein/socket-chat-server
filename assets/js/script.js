@@ -3,7 +3,7 @@ let mensagens = [];
 
 $(function () {
 
-  let ip_address = '127.0.0.1';
+  let ip_address = '192.168.1.36';
   let socket_port = '3000';
   let socket = io(ip_address + ':' + socket_port);
   let chatInput = $('#chatInput');
@@ -58,6 +58,14 @@ $(function () {
     adicionaNovaMensagem('outros', message);
     renderListaMensagens();
   });
+  
+  socket.on('typingStartClient', (message) => {
+    document.getElementById('typingSpan').style.display = 'block';
+  });
+  
+  socket.on('typingStopClient', (message) => {
+    document.getElementById('typingSpan').style.display = 'none';
+  });
 
   socket.on('receivedFiles', fileReceived => {
     if (fileReceived.extensao.includes('image')) {
@@ -80,6 +88,13 @@ $(function () {
       adicionaNovoDocumento('meu', URL.createObjectURL(arquivo));
     }
     renderListaMensagens();
+  });
+
+  document.getElementById('chatInput').addEventListener('focus', () => {
+    socket.emit('startTypingServer', 'usuário digitando');
+  });  
+  document.getElementById('chatInput').addEventListener('focusout', () => {
+    socket.emit('stopTypingServer', 'usuário digitando');
   });
 });
 
