@@ -95,5 +95,6 @@ renderListaMensagens = () => {
       $('.chat-content ul').append(`<li class='${msg.origem}'><a download='documento.pdf' href='${msg.mensagem}'>Documento</a></li>`);
     }
   });
+  $('.chat-content ul').animate({ scrollTop: 99999999999 }, 250);
 }
 
