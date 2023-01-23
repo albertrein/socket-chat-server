@@ -19,8 +19,15 @@ $(function () {
     $(this).toggleClass('active');
   });
 
+  $('#chave').change(function (e) {
+    e.preventDefault();
+    renderListaMensagens();
+  });
+
   chatInput.keypress(function (e) {
-    let message = $(this).html();
+    let message = $(this).text();
+    if (!message.trim() || message.length === 0)
+      return;
     if (e.which === 13 && !e.shiftKey) {
       chaveAtual = $('#chave').val()
       socket.emit('sendChatToServer', encrypt(message, chaveAtual));

@@ -20,25 +20,29 @@ body {
 
 .container {
     max-width: 700px;
-    width: 100%;
-    height: 80%;
+    width: 100vw;
+    height: 100vh;
     border-radius: 5px;
 
     .row {
-        height: 100%;
+        height: 100vh;
+        outline: solid 1px white;
         display: flex;
         flex-direction: column;
 
         .chat-content {
             flex: auto;
+            height: 200px;
+            overflow: auto;
 
             ul {
+                overflow: auto;
                 height: 100%;
                 display: flex;
                 flex-direction: column;
                 justify-content: flex-end;
                 gap: 10px;
-                padding-bottom: 10px;
+                padding: 1.5rem;
 
                 li {
                     display: flex;
@@ -108,6 +112,10 @@ body {
 
                 &#crypt-key {
                     margin-right: 5px;
+
+                    &.active {
+                        color: $primary-color;
+                    }
 
                     &.active~.chat-key {
                         display: block;
