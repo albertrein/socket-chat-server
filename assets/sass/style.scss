@@ -1,5 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;500;700&display=swap');
-$primary-color: rgb(224, 19, 115);
+$primary-color: rgb(209, 26, 154);
 $secondary-color: rgb(172, 172, 172);
 
 * {
@@ -24,7 +24,7 @@ body {
     height: 100vh;
 
     .row {
-        height: 100vh;
+        height: 90vh;
         display: flex;
         flex-direction: column;
 
@@ -164,9 +164,10 @@ body {
 
 
             .chat-input {
-                overflow: hidden;
+                overflow: auto;
                 padding: 10px;
-                flex: auto;
+                flex: 1;
+                max-height: 100px;
 
                 &:focus-visible {
                     outline: none;

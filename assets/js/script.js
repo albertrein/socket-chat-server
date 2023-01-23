@@ -25,7 +25,7 @@ $(function () {
   });
 
   chatInput.keypress(function (e) {
-    let message = $(this).text();
+    let message = $(this).html();
     if (!message.trim() || message.length === 0)
       return;
     if (e.which === 13 && !e.shiftKey) {
