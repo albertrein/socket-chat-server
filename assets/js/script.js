@@ -1,66 +1,90 @@
+
 let mensagens = [];
 
-$(function() {
-    $('#send-file').click(function (e) { 
-      e.preventDefault();
-      $('#file').trigger('click');
-      
-    });
-    let ip_address = '127.0.0.1';
-    let socket_port = '3000';
-    let socket = io(ip_address + ':' + socket_port);
-    let chatInput = $('#chatInput');
-    chatInput.keypress(function(e) {
-        let message = $(this).html();
-        //console.log(message);
-        if(e.which === 13 && !e.shiftKey) {
-          chaveAtual = $('#chave').val()
-          socket.emit('sendChatToServer', encrypt(message, chaveAtual));
-          adicionaNovaMensagem(encrypt(message, chaveAtual));
-          chatInput.html('');
-          return false;
-        }
-    });
+$(function () {
 
-    socket.on('sendChatToClient', (message) => {
-      adicionaNovaMensagem(message);
+  let ip_address = '192.168.1.165';
+  let socket_port = '3000';
+  let socket = io(ip_address + ':' + socket_port);
+  let chatInput = $('#chatInput');
+
+  $('#send-file').click(function (e) {
+    e.preventDefault();
+    $('#file').trigger('click');
+
+  });
+
+  $('#crypt-key').click(function (e) {
+    e.preventDefault();
+    $(this).toggleClass('active');
+  });
+
+  chatInput.keypress(function (e) {
+    let message = $(this).html();
+    if (e.which === 13 && !e.shiftKey) {
+      chaveAtual = $('#chave').val()
+      socket.emit('sendChatToServer', encrypt(message, chaveAtual));
+      adicionaNovaMensagem('meu', encrypt(message, chaveAtual));
       renderListaMensagens();
-    });
+      chatInput.html('');
+      return false;
+    }
+  });
 
-    socket.on('sendFileToClients', image => {
-      console.log('ok')
-      const img = new Image();
-      // change image type to whatever you use, or detect it in the backend 
-      // and send it if you support multiple extensions
-      img.src = `data:image/jpg;base64,${image}`; 
-      document.body.appendChild(img);
-    });
+  socket.on('sendChatToClient', (message) => {
+    adicionaNovaMensagem('outros', message);
+    renderListaMensagens();
+  });
 
-    document.getElementById('file').addEventListener('change', function() {
+  socket.on('receivedFiles', fileReceived => {
+    if (fileReceived.extensao.includes('image')) {
+      imgSrc = `data:${fileReceived.extensao};base64,${fileReceived.arquivo}`;
+      adicionaNovaImagem('outros', imgSrc);
+    } else {
+      fileSrc = `data:${fileReceived.extensao};base64,${fileReceived.arquivo}`;
+      adicionaNovoDocumento('outros', fileSrc);
+    }
+    renderListaMensagens();
+    //document.body.appendChild(img);
+  });
 
-      console.log(this.files[0])
-      
-      /*const reader = new FileReader();
-      reader.onload = function() {
-        const bytes = new Uint8Array(this.result);
-        console.log(bytes)
-        //socket.emit('sendFile', bytes);
-      };
-      reader.readAsArrayBuffer(this.files[0]);
-      */
-      socket.emit('sendFile', this.files[0]);
-
-    });
+  document.getElementById('file').addEventListener('change', function () {
+    let arquivo = this.files[0];
+    socket.emit('sendFile', { "arquivo": arquivo, "extensao": arquivo.type });
+    if (arquivo.type.includes('image')) {
+      adicionaNovaImagem('meu', URL.createObjectURL(arquivo));
+    } else {
+      adicionaNovoDocumento('meu', URL.createObjectURL(arquivo));
+    }
+    renderListaMensagens();
+  });
 });
-adicionaNovaMensagem = (novaMensagem) => {
-  mensagens.push(novaMensagem);
+
+
+
+adicionaNovaMensagem = (origem, novaMensagem) => {
+  mensagens.push({ "origem": origem, "mensagem": novaMensagem, "type": 'mensagem' });
+}
+
+adicionaNovaImagem = (origem, imagemSrc) => {
+  mensagens.push({ "origem": origem, "mensagem": imagemSrc, "type": 'imagem' });
+}
+
+adicionaNovoDocumento = (origem, fileSrc) => {
+  mensagens.push({ "origem": origem, "mensagem": fileSrc, "type": 'documento' });
 }
 
 renderListaMensagens = () => {
   $('.chat-content ul').html('');
   chaveAtual = $('#chave').val()
   mensagens.forEach((msg) => {
-    $('.chat-content ul').append(`<li>${decrypt(msg, chaveAtual)}</li>`);
+    if (msg.type == "imagem") {
+      $('.chat-content ul').append(`<li class='${msg.origem}'><img src='${msg.mensagem}'></li>`);
+    } else if (msg.type == "mensagem") {
+      $('.chat-content ul').append(`<li class='${msg.origem}'>${decrypt(msg.mensagem, chaveAtual)}</li>`);
+    } else {
+      $('.chat-content ul').append(`<li class='${msg.origem}'><a download='documento.pdf' href='${msg.mensagem}'>Documento</a></li>`);
+    }
   });
 }
 
