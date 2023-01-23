@@ -88,7 +88,9 @@ renderListaMensagens = () => {
     if (msg.type == "imagem") {
       $('.chat-content ul').append(`<li class='${msg.origem}'><img src='${msg.mensagem}'></li>`);
     } else if (msg.type == "mensagem") {
-      $('.chat-content ul').append(`<li class='${msg.origem}'>${decrypt(msg.mensagem, chaveAtual)}</li>`);
+      if(decrypt(msg.mensagem, chaveAtual) != ''){
+        $('.chat-content ul').append(`<li class='${msg.origem}'>${decrypt(msg.mensagem, chaveAtual)}</li>`);
+      }
     } else {
       $('.chat-content ul').append(`<li class='${msg.origem}'><a download='documento.pdf' href='${msg.mensagem}'>Documento</a></li>`);
     }
