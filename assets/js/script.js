@@ -3,7 +3,7 @@ let mensagens = [];
 
 $(function () {
 
-  let ip_address = '192.168.1.165';
+  let ip_address = '127.0.0.1';
   let socket_port = '3000';
   let socket = io(ip_address + ':' + socket_port);
   let chatInput = $('#chatInput');
@@ -26,8 +26,18 @@ $(function () {
 
   chatInput.keypress(function (e) {
     let message = $(this).html();
-    if (!message.trim() || message.length === 0)
-      return;
+    console.log(message)
+    message = stringToHTML(message.trim());  
+    if (message.textContent.trim() == ''){
+      if(message.getElementsByTagName('img')[0]){
+        message = $(this).html();
+      }else{
+        return;        
+      }
+    }else{
+      message = $(this).html().trim();
+      message = message.replace(/&nbsp;/g, '');
+    }
     if (e.which === 13 && !e.shiftKey) {
       chaveAtual = $('#chave').val()
       socket.emit('sendChatToServer', encrypt(message, chaveAtual));
@@ -37,6 +47,12 @@ $(function () {
       return false;
     }
   });
+
+  var stringToHTML = function (str) {
+    var parser = new DOMParser();
+    var doc = parser.parseFromString(str, 'text/html');
+    return doc.body;
+  };
 
   socket.on('sendChatToClient', (message) => {
     adicionaNovaMensagem('outros', message);
