@@ -1,12 +1,18 @@
 
 let mensagens = [];
+localStorage.getItem('currentColor') ? changeColor(localStorage.getItem('currentColor')) : '';
 
 $(function () {
 
-  let ip_address = '192.168.1.36';
+  let ip_address = '192.168.1.165';
   let socket_port = '3000';
   let socket = io(ip_address + ':' + socket_port);
   let chatInput = $('#chatInput');
+
+  $('#color').click(function (e) {
+    e.preventDefault();
+    $('#colorChange').trigger('click');
+  });
 
   $('#send-file').click(function (e) {
     e.preventDefault();
@@ -26,15 +32,14 @@ $(function () {
 
   chatInput.keypress(function (e) {
     let message = $(this).html();
-    console.log(message)
-    message = stringToHTML(message.trim());  
-    if (message.textContent.trim() == ''){
-      if(message.getElementsByTagName('img')[0]){
+    message = stringToHTML(message.trim());
+    if (message.textContent.trim() == '') {
+      if (message.getElementsByTagName('img')[0]) {
         message = $(this).html();
-      }else{
-        return;        
+      } else {
+        return;
       }
-    }else{
+    } else {
       message = $(this).html().trim();
       message = message.replace(/&nbsp;/g, '');
     }
@@ -58,11 +63,11 @@ $(function () {
     adicionaNovaMensagem('outros', message);
     renderListaMensagens();
   });
-  
+
   socket.on('typingStartClient', (message) => {
     document.getElementById('typingSpan').style.display = 'block';
   });
-  
+
   socket.on('typingStopClient', (message) => {
     document.getElementById('typingSpan').style.display = 'none';
   });
@@ -96,7 +101,7 @@ $(function () {
 
   document.getElementById('chatInput').addEventListener('focus', () => {
     socket.emit('startTypingServer', 'usuário digitando');
-  });  
+  });
   document.getElementById('chatInput').addEventListener('focusout', () => {
     socket.emit('stopTypingServer', 'usuário digitando');
   });
@@ -109,11 +114,11 @@ adicionaNovaMensagem = (origem, novaMensagem) => {
 }
 
 adicionaNovaImagem = (origem, imagemSrc, nomeImagem) => {
-  mensagens.push({"origem": origem, "mensagem": imagemSrc, "type": 'imagem', "nomeArquivo" : nomeImagem});
+  mensagens.push({ "origem": origem, "mensagem": imagemSrc, "type": 'imagem', "nomeArquivo": nomeImagem });
 }
 
 adicionaNovoDocumento = (origem, fileSrc, nomeDocumento) => {
-  mensagens.push({"origem": origem, "mensagem": fileSrc, "type": 'documento', "nomeArquivo" : nomeDocumento});
+  mensagens.push({ "origem": origem, "mensagem": fileSrc, "type": 'documento', "nomeArquivo": nomeDocumento });
 }
 
 renderListaMensagens = () => {
@@ -123,7 +128,7 @@ renderListaMensagens = () => {
     if (msg.type == "imagem") {
       $('.chat-content ul').append(`<li class='${msg.origem}'><img alt='${msg.nomeArquivo}' src='${msg.mensagem}'></li>`);
     } else if (msg.type == "mensagem") {
-      if(decrypt(msg.mensagem, chaveAtual) != ''){
+      if (decrypt(msg.mensagem, chaveAtual) != '') {
         $('.chat-content ul').append(`<li class='${msg.origem}'>${decrypt(msg.mensagem, chaveAtual)}</li>`);
       }
     } else {
