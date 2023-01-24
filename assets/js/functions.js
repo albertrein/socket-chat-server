@@ -6,6 +6,11 @@ decrypt = (entradaDecrypt, chave) => {
   return CryptoJS.AES.decrypt(entradaDecrypt, chave).toString(CryptoJS.enc.Utf8)
 }
 
+var stringToHTML = function (str) {
+  var parser = new DOMParser();
+  var doc = parser.parseFromString(str, 'text/html');
+  return doc.body;
+};
 
 function changeColor(hex) {
   localStorage.setItem('currentColor', hex);

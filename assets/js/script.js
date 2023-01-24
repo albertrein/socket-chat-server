@@ -4,7 +4,7 @@ localStorage.getItem('currentColor') ? changeColor(localStorage.getItem('current
 
 $(function () {
 
-  let ip_address = '192.168.1.165';
+  let ip_address = '127.0.0.1';
   let socket_port = '3000';
   let socket = io(ip_address + ':' + socket_port);
   let chatInput = $('#chatInput');
@@ -52,12 +52,6 @@ $(function () {
       return false;
     }
   });
-
-  var stringToHTML = function (str) {
-    var parser = new DOMParser();
-    var doc = parser.parseFromString(str, 'text/html');
-    return doc.body;
-  };
 
   socket.on('sendChatToClient', (message) => {
     adicionaNovaMensagem('outros', message);
