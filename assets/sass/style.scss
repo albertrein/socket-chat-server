@@ -5,7 +5,7 @@
     --color-dark-primary: hsl(133, 72%, 37%);
     --color-light-primary: hsl(133, 90%, 55%);
     --color-secondary: rgb(172, 172, 172);
-    --color-text: rgb(255,255,255);
+    --color-text: rgb(255, 255, 255);
 }
 
 
@@ -58,6 +58,7 @@ body {
                     padding: 8px 10px;
                     border-radius: 5px;
                     color: var(--color-text);
+
                     img {
                         width: 100%;
                         max-height: 250px;
@@ -66,7 +67,7 @@ body {
                     &.meu {
                         align-self: flex-end;
                         background-color: var(--color-light-primary);
-                        
+
                         &::after {
                             content: "";
                             position: absolute;
@@ -186,13 +187,34 @@ body {
 }
 
 #typingSpan {
-    color: var(--color-primary);
-    mix-blend-mode: difference;
-    opacity: 1;
+    color: var(--color-text);
+    opacity: .75;
 }
 
 #colorChange {
     display: none;
+}
+
+a.document {
+    padding: 10px;
+    border-radius: 5px;
+    text-decoration: none;
+    color: var(--color-text);
+    background-color: rgba($color: white, $alpha: .25);
+    transition: background-color 250ms;
+    display: flex;
+    align-items: center;
+    &:hover {
+        background-color: rgba($color: white, $alpha: .5);
+    }
+    .fa-file-arrow-down{
+        margin-right:10px;
+    }
+    span {
+        b {
+            display: block;
+        }
+    }
 }
 
 /* Firefox */

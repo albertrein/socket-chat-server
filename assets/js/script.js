@@ -74,7 +74,7 @@ $(function () {
     } else {
       fileSrc = `data:${fileReceived.extensao};base64,${fileReceived.arquivo}`;
       //adicionaNovoDocumento('outros', fileSrc);
-      adicionaNovoDocumento('outros', fileSrc, fileReceived.arquivoNome);
+      adicionaNovoDocumento('outros', fileSrc, { "nome": fileReceived.arquivoNome, "tamanho": fileReceived.tamanho });
     }
     renderListaMensagens();
     //document.body.appendChild(img);
@@ -82,13 +82,13 @@ $(function () {
 
   document.getElementById('file').addEventListener('change', function () {
     let arquivo = this.files[0];
-    socket.emit('sendFile', { "arquivo": arquivo, "extensao": arquivo.type, "arquivoNome": arquivo.name });
+    socket.emit('sendFile', { "arquivo": arquivo, "extensao": arquivo.type, "tamanho": arquivo.size, "arquivoNome": arquivo.name });
     if (arquivo.type.includes('image')) {
       //adicionaNovaImagem('meu', URL.createObjectURL(arquivo));
       adicionaNovaImagem('meu', URL.createObjectURL(arquivo), arquivo.name);
     } else {
       //adicionaNovoDocumento('meu', URL.createObjectURL(arquivo));
-      adicionaNovoDocumento('meu', URL.createObjectURL(arquivo), arquivo.name);
+      adicionaNovoDocumento('meu', URL.createObjectURL(arquivo), { "arquivoNome": arquivo.name, "tamanho": arquivo.size });
     }
     renderListaMensagens();
   });
@@ -111,8 +111,8 @@ adicionaNovaImagem = (origem, imagemSrc, nomeImagem) => {
   mensagens.push({ "origem": origem, "mensagem": imagemSrc, "type": 'imagem', "nomeArquivo": nomeImagem });
 }
 
-adicionaNovoDocumento = (origem, fileSrc, nomeDocumento) => {
-  mensagens.push({ "origem": origem, "mensagem": fileSrc, "type": 'documento', "nomeArquivo": nomeDocumento });
+adicionaNovoDocumento = (origem, fileSrc, documento) => {
+  mensagens.push({ "origem": origem, "mensagem": fileSrc, "type": 'documento', "nomeArquivo": documento.arquivoNome, "tamanho": documento.tamanho });
 }
 
 renderListaMensagens = () => {
@@ -126,7 +126,10 @@ renderListaMensagens = () => {
         $('.chat-content ul').append(`<li class='${msg.origem}'>${decrypt(msg.mensagem, chaveAtual)}</li>`);
       }
     } else {
-      $('.chat-content ul').append(`<li class='${msg.origem}'><a download='${msg.nomeArquivo}' href='${msg.mensagem}'>${msg.nomeArquivo}</a></li>`);
+      $('.chat-content ul').append(`<li class='${msg.origem}'>
+      <a class="document" download='${msg.nomeArquivo}' href='${msg.mensagem}'>
+      <i class="fa fa-file-arrow-down fa-2x"></i><span><b>${msg.nomeArquivo}</b><small>${niceBytes(msg.tamanho)}</small>
+      </span></a></li>`);
     }
   });
   $('.chat-content ul').animate({ scrollTop: 99999999999 }, 250);
