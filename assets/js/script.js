@@ -122,8 +122,10 @@ renderListaMensagens = () => {
     if (msg.type == "imagem") {
       $('.chat-content ul').append(`<li class='${msg.origem}'><img alt='${msg.nomeArquivo}' src='${msg.mensagem}'></li>`);
     } else if (msg.type == "mensagem") {
-      if (decrypt(msg.mensagem, chaveAtual) != '') {
-        $('.chat-content ul').append(`<li class='${msg.origem}'>${decrypt(msg.mensagem, chaveAtual)}</li>`);
+      let mensagemImpressao = decrypt(msg.mensagem, chaveAtual);
+      if (mensagemImpressao != '') {
+        mensagemImpressao = recognizeLinkInMessage(mensagemImpressao);
+        $('.chat-content ul').append(`<li class='${msg.origem}'>${mensagemImpressao}</li>`);
       }
     } else {
       $('.chat-content ul').append(`<li class='${msg.origem}'>

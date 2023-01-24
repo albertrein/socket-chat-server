@@ -6,6 +6,13 @@ decrypt = (entradaDecrypt, chave) => {
   return CryptoJS.AES.decrypt(entradaDecrypt, chave).toString(CryptoJS.enc.Utf8)
 }
 
+var cleanMessageBeforeSend = (messageWrittenByUser) => new Promise((resolve, reject) => {
+  setTimeout(()=>{
+    console.log('timer out');
+    resolve();
+  },2000)
+});
+
 var stringToHTML = function (str) {
   var parser = new DOMParser();
   var doc = parser.parseFromString(str, 'text/html');
@@ -23,6 +30,19 @@ function niceBytes(x) {
   }
 
   return (n.toFixed(n < 10 && l > 0 ? 1 : 0) + ' ' + units[l]);
+}
+
+function recognizeLinkInMessage(text) {
+  var url1 = /(^|&lt;|\s)(www\..+?\..+?)(\s|&gt;|$)/g,
+  url2 = /(^|&lt;|\s)(((https?|ftp):\/\/|mailto:).+?)(\s|&gt;|$)/g;
+
+  var html = $.trim(text);
+  if (html) {
+      html = html
+          .replace(url1, '$1<a style="color:blue; text-decoration:underline;" target="_blank"  href="http://$2">$2</a>$3')
+          .replace(url2, '$1<a style="color:blue; text-decoration:underline;" target="_blank"  href="$2">$2</a>$5');
+  }
+  return html;
 }
 
 function changeColor(hex) {
