@@ -4,7 +4,7 @@ localStorage.getItem('currentColor') ? changeColor(localStorage.getItem('current
 
 $(function () {
 
-  let ip_address = '127.0.0.1';
+  let ip_address = '192.168.1.165';
   let socket_port = '3000';
   let socket = io(ip_address + ':' + socket_port);
   let chatInput = $('#chatInput');
@@ -74,7 +74,7 @@ $(function () {
     } else {
       fileSrc = `data:${fileReceived.extensao};base64,${fileReceived.arquivo}`;
       //adicionaNovoDocumento('outros', fileSrc);
-      adicionaNovoDocumento('outros', fileSrc, { "nome": fileReceived.arquivoNome, "tamanho": fileReceived.tamanho });
+      adicionaNovoDocumento('outros', fileSrc, { "arquivoNome": fileReceived.arquivoNome, "tamanho": fileReceived.tamanho });
     }
     renderListaMensagens();
     //document.body.appendChild(img);

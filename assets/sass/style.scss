@@ -204,12 +204,15 @@ a.document {
     transition: background-color 250ms;
     display: flex;
     align-items: center;
+
     &:hover {
         background-color: rgba($color: white, $alpha: .5);
     }
-    .fa-file-arrow-down{
-        margin-right:10px;
+
+    .fa-file-arrow-down {
+        margin-right: 10px;
     }
+
     span {
         b {
             display: block;
@@ -254,4 +257,17 @@ a.document {
 
 *::-webkit-scrollbar-thumb:active {
     background-color: var(--color-light-primary);
+}
+
+footer {
+    position: fixed;
+    bottom: 10px;
+    right: 20px;
+
+    a {
+        color: var(--color-text);
+        font-size: .85rem;
+        text-decoration: none;
+        opacity: .85;
+    }
 }
