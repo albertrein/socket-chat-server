@@ -34,23 +34,23 @@ function changeColor(hex) {
   sn = Math.round(s * 100);
   ln = Math.round(l * 100);
 
+  document.documentElement.style.setProperty('--color-text', ln > 60 ? 'black' : 'white')
+
+
+
   cssString = 'hsl(' + hn + ',' + sn + '%,' + ln + '%)';
 
   hd = Math.round(h * 360);
   sd = Math.round(s * 100);
-  ld = Math.round(l * 120);
+  ld = Math.round(l * 100) + 10;
 
   lightCssString = 'hsl(' + hd + ',' + sd + '%,' + ld + '%)';
 
   hl = Math.round(h * 360);
   sl = Math.round(s * 100);
-  ll = Math.round(l * 80);
+  ll = Math.round(l * 100) - 10;
 
   darkCssString = 'hsl(' + hl + ',' + sl + '%,' + ll + '%)';
-
-  console.log("Dark" + darkCssString);
-  console.log("Light" + lightCssString);
-  console.log("Normal" + cssString);
 
   document.documentElement.style.setProperty('--color-primary', cssString);
   document.documentElement.style.setProperty('--color-dark-primary', darkCssString);
