@@ -4,7 +4,7 @@ localStorage.getItem('currentColor') ? changeColor(localStorage.getItem('current
 
 $(function () {
 
-  let ip_address = '192.168.1.165';
+  let ip_address = '127.0.0.1';
   let socket_port = '3000';
   let socket = io(ip_address + ':' + socket_port);
   let chatInput = $('#chatInput');
@@ -80,6 +80,13 @@ $(function () {
     //document.body.appendChild(img);
   });
 
+  socket.on('updateUsersList', listaUsuarios => {
+    if(listaUsuarios.length == 0){
+      return;
+    }
+    renderUsuariosAtivos(listaUsuarios);
+  });
+
   document.getElementById('file').addEventListener('change', function () {
     let arquivo = this.files[0];
     socket.emit('sendFile', { "arquivo": arquivo, "extensao": arquivo.type, "tamanho": arquivo.size, "arquivoNome": arquivo.name });
@@ -137,3 +144,10 @@ renderListaMensagens = () => {
   $('.chat-content ul').animate({ scrollTop: 99999999999 }, 250);
 }
 
+renderUsuariosAtivos = (listaUsuariosAtivos) => {
+  let divUsuarios = $('.chat-users');
+  divUsuarios.html('');
+  listaUsuariosAtivos.forEach((usuario) => {
+    divUsuarios.append(`<li><span>${usuario.nome}</span></li>`)
+  });
+}
