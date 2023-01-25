@@ -152,7 +152,14 @@ renderUsuariosAtivos = (listaUsuariosAtivos) => {
   divUsuarios.html('');
   for (const chave in listaUsuariosAtivos){
     //if(chave != myUserId){
-      divUsuarios.append(`<li id=${chave}><span>${listaUsuariosAtivos[chave].userName}</span></li>`);
+      divUsuarios.append(`<li id=${chave}><input type='radio' class='userMessageTo' value=${listaUsuariosAtivos[chave].socketId}>${listaUsuariosAtivos[chave].userName}</input></li>`);
     //}
   }
+}
+
+getSelectedUser = () => {
+  if(document.querySelector('.userMessageTo').checked){
+    return document.querySelector('.userMessageTo').value;
+  }
+  return false;
 }
