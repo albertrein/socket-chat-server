@@ -81,9 +81,12 @@ $(function () {
   });
 
   socket.on('updateUsersList', listaUsuarios => {
-    if(listaUsuarios.length == 0){
+    listaUsuarios = JSON.parse(listaUsuarios);
+    if(!listaUsuarios){
       return;
     }
+    storeUserIdentification(listaUsuarios[socket.id]);
+    delete listaUsuarios[socket.id];
     renderUsuariosAtivos(listaUsuarios);
   });
 
@@ -147,7 +150,9 @@ renderListaMensagens = () => {
 renderUsuariosAtivos = (listaUsuariosAtivos) => {
   let divUsuarios = $('.chat-users');
   divUsuarios.html('');
-  listaUsuariosAtivos.forEach((usuario) => {
-    divUsuarios.append(`<li><span>${usuario.nome}</span></li>`)
-  });
+  for (const chave in listaUsuariosAtivos){
+    //if(chave != myUserId){
+      divUsuarios.append(`<li id=${chave}><span>${listaUsuariosAtivos[chave].userName}</span></li>`);
+    //}
+  }
 }

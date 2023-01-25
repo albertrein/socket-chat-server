@@ -45,6 +45,11 @@ function recognizeLinkInMessage(text) {
   return html;
 }
 
+function storeUserIdentification(userObjectData){
+  localStorage.setItem('userId', userObjectData.socketId)
+  localStorage.setItem('userName', userObjectData.userName)
+}
+
 function changeColor(hex) {
   localStorage.setItem('currentColor', hex);
   var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
