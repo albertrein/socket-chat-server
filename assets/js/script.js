@@ -1,5 +1,8 @@
 
 let mensagens = [];
+const gerenciadorMensagens = {
+  "geral" : []
+};
 localStorage.getItem('currentColor') ? changeColor(localStorage.getItem('currentColor')) : '';
 
 $(function () {
@@ -123,16 +126,44 @@ $(function () {
 
 
 
-adicionaNovaMensagem = (origem, novaMensagem) => {
-  mensagens.push({ "origem": origem, "mensagem": novaMensagem, "type": 'mensagem' });
+adicionaNovaMensagem = (origem, novaMensagem, from = 'geral') => {
+  /*if(from == 'geral'){
+    mensagens.push({ "origem": origem, "mensagem": novaMensagem, "type": 'mensagem' });
+    gerenciadorMensagens[from].push(mensagens.push({ "origem": origem, "mensagem": novaMensagem, "type": 'mensagem' }));
+    return;
+  }*/
+  try{
+    gerenciadorMensagens[from].push(mensagens.push({ "origem": origem, "mensagem": novaMensagem, "type": 'mensagem' }));
+  }catch(e){
+    gerenciadorMensagens[from] = [];
+    gerenciadorMensagens[from].push(mensagens.push({ "origem": origem, "mensagem": novaMensagem, "type": 'mensagem' }));
+  }
 }
 
-adicionaNovaImagem = (origem, imagemSrc, nomeImagem) => {
-  mensagens.push({ "origem": origem, "mensagem": imagemSrc, "type": 'imagem', "nomeArquivo": nomeImagem });
+adicionaNovaImagem = (origem, imagemSrc, nomeImagem, from = 'geral') => {
+  /*if(from == 'geral'){
+    mensagens.push({ "origem": origem, "mensagem": imagemSrc, "type": 'imagem', "nomeArquivo": nomeImagem });
+    return;
+  }*/
+  try{
+    gerenciadorMensagens[from].push(mensagens.push({ "origem": origem, "mensagem": imagemSrc, "type": 'imagem', "nomeArquivo": nomeImagem }));
+  }catch(e){
+    gerenciadorMensagens[from] = [];
+    gerenciadorMensagens[from].push(mensagens.push({ "origem": origem, "mensagem": imagemSrc, "type": 'imagem', "nomeArquivo": nomeImagem }));
+  }
 }
 
-adicionaNovoDocumento = (origem, fileSrc, documento) => {
-  mensagens.push({ "origem": origem, "mensagem": fileSrc, "type": 'documento', "nomeArquivo": documento.arquivoNome, "tamanho": documento.tamanho });
+adicionaNovoDocumento = (origem, fileSrc, documento, from = 'geral') => {
+  /*if(from == 'geral'){
+    mensagens.push({ "origem": origem, "mensagem": fileSrc, "type": 'documento', "nomeArquivo": documento.arquivoNome, "tamanho": documento.tamanho });
+    return;
+  }*/
+  try{
+    gerenciadorMensagens[from].push(mensagens.push({ "origem": origem, "mensagem": fileSrc, "type": 'documento', "nomeArquivo": documento.arquivoNome, "tamanho": documento.tamanho }));
+  }catch(e){
+    gerenciadorMensagens[from] = [];
+    gerenciadorMensagens[from].push(mensagens.push({ "origem": origem, "mensagem": fileSrc, "type": 'documento', "nomeArquivo": documento.arquivoNome, "tamanho": documento.tamanho }));
+  }
 }
 
 renderListaMensagens = () => {
