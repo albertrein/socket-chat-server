@@ -26,7 +26,6 @@ const usuarios = {};
 io.on('connection', (socket) => {
     console.log('connection');
     adicionaNovoUsuario(socket.id, arrayNomesUsuariosAleatorios[getRandomNumber(arrayNomesUsuariosAleatorios.length)] + ' ' + arrayNomesUsuariosAleatorios[getRandomNumber(arrayNomesUsuariosAleatorios.length)]);
-    socket.userName = 
     socket.on('sendChatToServer', (message) => {
         console.log(message);
 
@@ -35,7 +34,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('sendMessageTo', messageObj => {
-        getSocketBySocketId(messageObj.socketId).emit('sendMessageToUser', messageObj.message);
+        io.to(messageObj.to).emit('sendMessageToUser', {"message":messageObj.message, "from":messageObj.from});
     });
     
     socket.on("sendFile", (file) => {

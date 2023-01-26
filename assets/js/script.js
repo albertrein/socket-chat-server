@@ -45,7 +45,11 @@ $(function () {
     }
     if (e.which === 13 && !e.shiftKey) {
       chaveAtual = $('#chave').val()
-      socket.emit('sendChatToServer', encrypt(message, chaveAtual));
+      if(getSelectedUser()){
+        socket.emit('sendMessageTo', {"message":encrypt(message, chaveAtual), "to": getSelectedUser(), "from": localStorage.userId});
+      }else{
+        socket.emit('sendChatToServer', encrypt(message, chaveAtual));
+      }
       adicionaNovaMensagem('meu', encrypt(message, chaveAtual));
       renderListaMensagens();
       chatInput.html('');
@@ -64,6 +68,12 @@ $(function () {
 
   socket.on('typingStopClient', (message) => {
     document.getElementById('typingSpan').style.display = 'none';
+  });
+  
+  socket.on('sendMessageToUser', (message) => {
+    chaveAtual = $('#chave').val()
+    console.log(decrypt(message.message, chaveAtual))
+    console.log('Remetente:', message);
   });
 
   socket.on('receivedFiles', fileReceived => {
