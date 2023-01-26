@@ -44,7 +44,7 @@ $(function () {
       message = message.replace(/&nbsp;/g, '');
     }
     if (e.which === 13 && !e.shiftKey) {
-      chaveAtual = $('#chave').val()
+      chaveAtual = getChaveCriptografia();
       if(getSelectedUser()){
         socket.emit('sendMessageTo', {"message":encrypt(message, chaveAtual), "to": getSelectedUser(), "from": localStorage.userId});
       }else{
@@ -71,7 +71,7 @@ $(function () {
   });
   
   socket.on('sendMessageToUser', (message) => {
-    chaveAtual = $('#chave').val()
+    chaveAtual = getChaveCriptografia();
     console.log(decrypt(message.message, chaveAtual))
     console.log('Remetente:', message);
   });
@@ -137,7 +137,7 @@ adicionaNovoDocumento = (origem, fileSrc, documento) => {
 
 renderListaMensagens = () => {
   $('.chat-content ul').html('');
-  chaveAtual = $('#chave').val()
+  chaveAtual = getChaveCriptografia();
   mensagens.forEach((msg) => {
     if (msg.type == "imagem") {
       $('.chat-content ul').append(`<li class='${msg.origem}'><img alt='${msg.nomeArquivo}' src='${msg.mensagem}'></li>`);
@@ -161,9 +161,7 @@ renderUsuariosAtivos = (listaUsuariosAtivos) => {
   let divUsuarios = $('.chat-users');
   divUsuarios.html('');
   for (const chave in listaUsuariosAtivos){
-    //if(chave != myUserId){
       divUsuarios.append(`<li id=${chave}><input type='radio' class='userMessageTo' value=${listaUsuariosAtivos[chave].socketId}>${listaUsuariosAtivos[chave].userName}</input></li>`);
-    //}
   }
 }
 
@@ -173,3 +171,5 @@ getSelectedUser = () => {
   }
   return false;
 }
+
+getChaveCriptografia = () => $('#chave').val();
