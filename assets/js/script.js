@@ -7,7 +7,7 @@ localStorage.getItem('currentColor') ? changeColor(localStorage.getItem('current
 
 $(function () {
 
-  let ip_address = '127.0.0.1';
+  let ip_address = '192.168.1.36';
   let socket_port = '3000';
   let socket = io(ip_address + ':' + socket_port);
   let chatInput = $('#chatInput');
@@ -76,7 +76,8 @@ $(function () {
   
   socket.on('sendMessageToUser', (message) => {
     console.log('Remetente:', message);
-    adicionaNovaMensagem('outros', message, message.from);
+    adicionaNovaMensagem('outros', message.message, message.from);
+    renderListaMensagens();
   });
 
   socket.on('receivedFiles', fileReceived => {
@@ -116,6 +117,14 @@ $(function () {
     renderListaMensagens();
   });
 
+ 
+  document.addEventListener( "click", (event) => {
+    var element = event.target;
+    if(element.name = "userMessageTo"){
+      renderListaMensagens();
+    }
+  });
+  
   document.getElementById('chatInput').addEventListener('focus', () => {
     socket.emit('startTypingServer', 'usuário digitando');
   });
@@ -169,7 +178,7 @@ adicionaNovoDocumento = (origem, fileSrc, documento, from = 'geral') => {
 renderListaMensagens = () => {
   $('.chat-content ul').html('');
   chaveAtual = getChaveCriptografia();
-  let mensagens = gerenciadorMensagens[getSelectedUser()];
+  let mensagens = gerenciadorMensagens[getSelectedUser()] || [];
   mensagens.forEach((msg) => {
     if (msg.type == "imagem") {
       $('.chat-content ul').append(`<li class='${msg.origem}'><img alt='${msg.nomeArquivo}' src='${msg.mensagem}'></li>`);
@@ -193,19 +202,16 @@ renderUsuariosAtivos = (listaUsuariosAtivos) => {
   let divUsuarios = $('.chat-users');
   divUsuarios.html('');
   for (const chave in listaUsuariosAtivos){
-      divUsuarios.append(`<li id=${chave}><input type='radio' class='userMessageTo' value=${listaUsuariosAtivos[chave].socketId}>${listaUsuariosAtivos[chave].userName}</input></li>`);
+      divUsuarios.append(`<li id=${chave}><input type='radio' name='userMessageTo' value=${listaUsuariosAtivos[chave].socketId}>${listaUsuariosAtivos[chave].userName}</input></li>`);
   }
 }
 
 getSelectedUser = () => {
-  if(document.querySelector('.userMessageTo') && document.querySelector('.userMessageTo').checked){
-    return document.querySelector('.userMessageTo').value;
+  let userChecked = $('input[name=userMessageTo]:checked').val();
+  if(userChecked){
+    return userChecked;
   }
   return "geral";
 }
-
-document.querySelector('.userMessageTo').addEventListener('click', () => {
-  renderListaMensagens();
-});
 
 getChaveCriptografia = () => $('#chave').val();

@@ -34,7 +34,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('sendMessageTo', messageObj => {
-        io.to(messageObj.to).emit('sendMessageToUser', {"message":messageObj.message, "from":messageObj.from});
+        io.to(messageObj.to).emit('sendMessageToUser', {"message":messageObj.message, "from":messageObj.from, "to":messageObj.to});
     });
     
     socket.on("sendFile", (file) => {
