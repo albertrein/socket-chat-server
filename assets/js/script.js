@@ -48,7 +48,7 @@ $(function () {
     }
     if (e.which === 13 && !e.shiftKey) {
       chaveAtual = getChaveCriptografia();
-      if(getSelectedUser()){
+      if(getSelectedUser() != 'geral'){
         socket.emit('sendMessageTo', {"message":encrypt(message, chaveAtual), "to": getSelectedUser(), "from": localStorage.userId});
         adicionaNovaMensagem('meu', encrypt(message, chaveAtual), getSelectedUser());
       }else{
@@ -169,6 +169,7 @@ adicionaNovoDocumento = (origem, fileSrc, documento, from = 'geral') => {
 renderListaMensagens = () => {
   $('.chat-content ul').html('');
   chaveAtual = getChaveCriptografia();
+  let mensagens = gerenciadorMensagens[getSelectedUser()];
   mensagens.forEach((msg) => {
     if (msg.type == "imagem") {
       $('.chat-content ul').append(`<li class='${msg.origem}'><img alt='${msg.nomeArquivo}' src='${msg.mensagem}'></li>`);
@@ -202,5 +203,9 @@ getSelectedUser = () => {
   }
   return "geral";
 }
+
+document.querySelector('.userMessageTo').addEventListener('click', () => {
+  renderListaMensagens();
+});
 
 getChaveCriptografia = () => $('#chave').val();
