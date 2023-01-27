@@ -50,10 +50,11 @@ $(function () {
       chaveAtual = getChaveCriptografia();
       if(getSelectedUser()){
         socket.emit('sendMessageTo', {"message":encrypt(message, chaveAtual), "to": getSelectedUser(), "from": localStorage.userId});
+        adicionaNovaMensagem('meu', encrypt(message, chaveAtual), getSelectedUser());
       }else{
         socket.emit('sendChatToServer', encrypt(message, chaveAtual));
+        adicionaNovaMensagem('meu', encrypt(message, chaveAtual));
       }
-      adicionaNovaMensagem('meu', encrypt(message, chaveAtual));
       renderListaMensagens();
       chatInput.html('');
       return false;
@@ -74,9 +75,8 @@ $(function () {
   });
   
   socket.on('sendMessageToUser', (message) => {
-    chaveAtual = getChaveCriptografia();
-    console.log(decrypt(message.message, chaveAtual))
     console.log('Remetente:', message);
+    adicionaNovaMensagem('outros', message, message.from);
   });
 
   socket.on('receivedFiles', fileReceived => {
@@ -129,14 +129,14 @@ $(function () {
 adicionaNovaMensagem = (origem, novaMensagem, from = 'geral') => {
   /*if(from == 'geral'){
     mensagens.push({ "origem": origem, "mensagem": novaMensagem, "type": 'mensagem' });
-    gerenciadorMensagens[from].push(mensagens.push({ "origem": origem, "mensagem": novaMensagem, "type": 'mensagem' }));
+    gerenciadorMensagens[from].push({ "origem": origem, "mensagem": novaMensagem, "type": 'mensagem' });
     return;
   }*/
   try{
-    gerenciadorMensagens[from].push(mensagens.push({ "origem": origem, "mensagem": novaMensagem, "type": 'mensagem' }));
+    gerenciadorMensagens[from].push({ "origem": origem, "mensagem": novaMensagem, "type": 'mensagem' });
   }catch(e){
     gerenciadorMensagens[from] = [];
-    gerenciadorMensagens[from].push(mensagens.push({ "origem": origem, "mensagem": novaMensagem, "type": 'mensagem' }));
+    gerenciadorMensagens[from].push({ "origem": origem, "mensagem": novaMensagem, "type": 'mensagem' });
   }
 }
 
@@ -146,10 +146,10 @@ adicionaNovaImagem = (origem, imagemSrc, nomeImagem, from = 'geral') => {
     return;
   }*/
   try{
-    gerenciadorMensagens[from].push(mensagens.push({ "origem": origem, "mensagem": imagemSrc, "type": 'imagem', "nomeArquivo": nomeImagem }));
+    gerenciadorMensagens[from].push({ "origem": origem, "mensagem": imagemSrc, "type": 'imagem', "nomeArquivo": nomeImagem });
   }catch(e){
     gerenciadorMensagens[from] = [];
-    gerenciadorMensagens[from].push(mensagens.push({ "origem": origem, "mensagem": imagemSrc, "type": 'imagem', "nomeArquivo": nomeImagem }));
+    gerenciadorMensagens[from].push({ "origem": origem, "mensagem": imagemSrc, "type": 'imagem', "nomeArquivo": nomeImagem });
   }
 }
 
@@ -159,10 +159,10 @@ adicionaNovoDocumento = (origem, fileSrc, documento, from = 'geral') => {
     return;
   }*/
   try{
-    gerenciadorMensagens[from].push(mensagens.push({ "origem": origem, "mensagem": fileSrc, "type": 'documento', "nomeArquivo": documento.arquivoNome, "tamanho": documento.tamanho }));
+    gerenciadorMensagens[from].push({ "origem": origem, "mensagem": fileSrc, "type": 'documento', "nomeArquivo": documento.arquivoNome, "tamanho": documento.tamanho });
   }catch(e){
     gerenciadorMensagens[from] = [];
-    gerenciadorMensagens[from].push(mensagens.push({ "origem": origem, "mensagem": fileSrc, "type": 'documento', "nomeArquivo": documento.arquivoNome, "tamanho": documento.tamanho }));
+    gerenciadorMensagens[from].push({ "origem": origem, "mensagem": fileSrc, "type": 'documento', "nomeArquivo": documento.arquivoNome, "tamanho": documento.tamanho });
   }
 }
 
@@ -197,10 +197,10 @@ renderUsuariosAtivos = (listaUsuariosAtivos) => {
 }
 
 getSelectedUser = () => {
-  if(document.querySelector('.userMessageTo').checked){
+  if(document.querySelector('.userMessageTo') && document.querySelector('.userMessageTo').checked){
     return document.querySelector('.userMessageTo').value;
   }
-  return false;
+  return "geral";
 }
 
 getChaveCriptografia = () => $('#chave').val();
