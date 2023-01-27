@@ -23,15 +23,23 @@ const io = require('socket.io')(server, {
 
 const usuarios = {};
 
-io.on('connection', (socket) => {
-    console.log('connection');
-    adicionaNovoUsuario(socket.id, arrayNomesUsuariosAleatorios[getRandomNumber(arrayNomesUsuariosAleatorios.length)] + ' ' + arrayNomesUsuariosAleatorios[getRandomNumber(arrayNomesUsuariosAleatorios.length)]);
+io.on('connection', (socket, next) => {
+    console.log('connection', socket.request._query['socketUserName']);
+    if(socket.request._query['socketUserName']){
+        adicionaNovoUsuario(socket.id, socket.request._query['socketUserName']);
+    }else{
+        adicionaNovoUsuario(socket.id, arrayNomesUsuariosAleatorios[getRandomNumber(arrayNomesUsuariosAleatorios.length)] + ' ' + arrayNomesUsuariosAleatorios[getRandomNumber(arrayNomesUsuariosAleatorios.length)]);
+    }
     socket.on('sendChatToServer', (message) => {
         console.log(message);
 
         // io.sockets.emit('sendChatToClient', message);
         socket.broadcast.emit('sendChatToClient', message);
     });
+
+   /* socket.on('changeUserName', messageObj => {
+        adicionaNovoUsuario(socket.id, arrayNomesUsuariosAleatorios[getRandomNumber(arrayNomesUsuariosAleatorios.length)] + ' ' + arrayNomesUsuariosAleatorios[getRandomNumber(arrayNomesUsuariosAleatorios.length)]);
+    })*/
 
     socket.on('sendMessageTo', messageObj => {
         io.to(messageObj.to).emit('sendMessageToUser', {"message":messageObj.message, "from":messageObj.from, "to":messageObj.to});
@@ -64,6 +72,7 @@ server.listen(3000, () => {
 adicionaNovoUsuario = (socketId, nomeUsuario) => {
     console.log('Nova conexao:',socketId, nomeUsuario);
     usuarios[socketId] = {'socketId' : socketId, 'userName' : nomeUsuario};
+    console.log(JSON.stringify(usuarios));
     io.sockets.emit('updateUsersList', JSON.stringify(usuarios));
     //sendNewUserListToAllActiveUsers();
     //console.log(nomeUsuario);

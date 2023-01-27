@@ -6,131 +6,143 @@ const gerenciadorMensagens = {
 localStorage.getItem('currentColor') ? changeColor(localStorage.getItem('currentColor')) : '';
 
 $(function () {
-
-  let ip_address = '192.168.1.36';
-  let socket_port = '3000';
-  let socket = io(ip_address + ':' + socket_port);
-  let chatInput = $('#chatInput');
-
-  $('#color').click(function (e) {
-    e.preventDefault();
-    $('#colorChange').trigger('click');
-  });
-
-  $('#send-file').click(function (e) {
-    e.preventDefault();
-    $('#file').trigger('click');
-
-  });
-
-  $('#crypt-key').click(function (e) {
-    e.preventDefault();
-    $(this).toggleClass('active');
-  });
-
-  $('#chave').change(function (e) {
-    e.preventDefault();
-    renderListaMensagens();
-  });
-
-  chatInput.keypress(function (e) {
-    let message = $(this).html();
-    message = stringToHTML(message.trim());
-    if (message.textContent.trim() == '') {
-      if (message.getElementsByTagName('img')[0]) {
-        message = $(this).html();
-      } else {
-        return;
-      }
-    } else {
-      message = $(this).html().trim();
-      message = message.replace(/&nbsp;/g, '');
-    }
-    if (e.which === 13 && !e.shiftKey) {
-      chaveAtual = getChaveCriptografia();
-      if(getSelectedUser() != 'geral'){
-        socket.emit('sendMessageTo', {"message":encrypt(message, chaveAtual), "to": getSelectedUser(), "from": localStorage.userId});
-        adicionaNovaMensagem('meu', encrypt(message, chaveAtual), getSelectedUser());
-      }else{
-        socket.emit('sendChatToServer', encrypt(message, chaveAtual));
-        adicionaNovaMensagem('meu', encrypt(message, chaveAtual));
-      }
-      renderListaMensagens();
-      chatInput.html('');
-      return false;
-    }
-  });
-
-  socket.on('sendChatToClient', (message) => {
-    adicionaNovaMensagem('outros', message);
-    renderListaMensagens();
-  });
-
-  socket.on('typingStartClient', (message) => {
-    document.getElementById('typingSpan').style.display = 'block';
-  });
-
-  socket.on('typingStopClient', (message) => {
-    document.getElementById('typingSpan').style.display = 'none';
-  });
-  
-  socket.on('sendMessageToUser', (message) => {
-    console.log('Remetente:', message);
-    adicionaNovaMensagem('outros', message.message, message.from);
-    renderListaMensagens();
-  });
-
-  socket.on('receivedFiles', fileReceived => {
-    if (fileReceived.extensao.includes('image')) {
-      imgSrc = `data:${fileReceived.extensao};base64,${fileReceived.arquivo}`;
-      //adicionaNovaImagem('outros', imgSrc);
-      adicionaNovaImagem('outros', imgSrc, fileReceived.arquivoNome);
-    } else {
-      fileSrc = `data:${fileReceived.extensao};base64,${fileReceived.arquivo}`;
-      //adicionaNovoDocumento('outros', fileSrc);
-      adicionaNovoDocumento('outros', fileSrc, { "arquivoNome": fileReceived.arquivoNome, "tamanho": fileReceived.tamanho });
-    }
-    renderListaMensagens();
-    //document.body.appendChild(img);
-  });
-
-  socket.on('updateUsersList', listaUsuarios => {
-    listaUsuarios = JSON.parse(listaUsuarios);
-    if(!listaUsuarios){
+  document.getElementById('userName').addEventListener('change', (eventChange) => {
+    if(eventChange.target.value == ""){
       return;
     }
-    storeUserIdentification(listaUsuarios[socket.id]);
-    delete listaUsuarios[socket.id];
-    renderUsuariosAtivos(listaUsuarios);
-  });
+    document.getElementById('userNameInsert').remove();
+    socketFunctions(eventChange.target.value);
+    console.log('Conectando')
+  })
 
-  document.getElementById('file').addEventListener('change', function () {
-    let arquivo = this.files[0];
-    socket.emit('sendFile', { "arquivo": arquivo, "extensao": arquivo.type, "tamanho": arquivo.size, "arquivoNome": arquivo.name });
-    if (arquivo.type.includes('image')) {
-      //adicionaNovaImagem('meu', URL.createObjectURL(arquivo));
-      adicionaNovaImagem('meu', URL.createObjectURL(arquivo), arquivo.name);
-    } else {
-      //adicionaNovoDocumento('meu', URL.createObjectURL(arquivo));
-      adicionaNovoDocumento('meu', URL.createObjectURL(arquivo), { "arquivoNome": arquivo.name, "tamanho": arquivo.size });
-    }
-    renderListaMensagens();
-  });
-
- 
-  document.addEventListener( "click", (event) => {
-    var element = event.target;
-    if(element.name = "userMessageTo"){
-      renderListaMensagens();
-    }
-  });
+  socketFunctions = (socketUserName) => {
+    let ip_address = '192.168.1.36';
+    let socket_port = '3000';
+    let socket = io(ip_address + ':' + socket_port, {  query: "socketUserName="+socketUserName });
+    let chatInput = $('#chatInput');
   
-  document.getElementById('chatInput').addEventListener('focus', () => {
-    socket.emit('startTypingServer', 'usuário digitando');
-  });
-  document.getElementById('chatInput').addEventListener('focusout', () => {
-    socket.emit('stopTypingServer', 'usuário digitando');
-  });
+    $('#color').click(function (e) {
+      e.preventDefault();
+      $('#colorChange').trigger('click');
+    });
+  
+    $('#send-file').click(function (e) {
+      e.preventDefault();
+      $('#file').trigger('click');
+  
+    });
+  
+    $('#crypt-key').click(function (e) {
+      e.preventDefault();
+      $(this).toggleClass('active');
+    });
+  
+    $('#chave').change(function (e) {
+      e.preventDefault();
+      renderListaMensagens();
+    });
+  
+    chatInput.keypress(function (e) {
+      let message = $(this).html();
+      message = stringToHTML(message.trim());
+      if (message.textContent.trim() == '') {
+        if (message.getElementsByTagName('img')[0]) {
+          message = $(this).html();
+        } else {
+          return;
+        }
+      } else {
+        message = $(this).html().trim();
+        message = message.replace(/&nbsp;/g, '');
+      }
+      if (e.which === 13 && !e.shiftKey) {
+        chaveAtual = getChaveCriptografia();
+        if(getSelectedUser() != 'geral'){
+          socket.emit('sendMessageTo', {"message":encrypt(message, chaveAtual), "to": getSelectedUser(), "from": localStorage.userId});
+          adicionaNovaMensagem('meu', encrypt(message, chaveAtual), getSelectedUser());
+        }else{
+          socket.emit('sendChatToServer', encrypt(message, chaveAtual));
+          adicionaNovaMensagem('meu', encrypt(message, chaveAtual));
+        }
+        renderListaMensagens();
+        chatInput.html('');
+        return false;
+      }
+    });
+  
+    socket.on('sendChatToClient', (message) => {
+      adicionaNovaMensagem('outros', message);
+      renderListaMensagens();
+    });
+  
+    socket.on('typingStartClient', (message) => {
+      document.getElementById('typingSpan').style.display = 'block';
+    });
+  
+    socket.on('typingStopClient', (message) => {
+      document.getElementById('typingSpan').style.display = 'none';
+    });
+    
+    socket.on('sendMessageToUser', (message) => {
+      console.log('Remetente:', message);
+      adicionaNovaMensagem('outros', message.message, message.from);
+      renderListaMensagens();
+    });
+  
+    socket.on('receivedFiles', fileReceived => {
+      if (fileReceived.extensao.includes('image')) {
+        imgSrc = `data:${fileReceived.extensao};base64,${fileReceived.arquivo}`;
+        //adicionaNovaImagem('outros', imgSrc);
+        adicionaNovaImagem('outros', imgSrc, fileReceived.arquivoNome);
+      } else {
+        fileSrc = `data:${fileReceived.extensao};base64,${fileReceived.arquivo}`;
+        //adicionaNovoDocumento('outros', fileSrc);
+        adicionaNovoDocumento('outros', fileSrc, { "arquivoNome": fileReceived.arquivoNome, "tamanho": fileReceived.tamanho });
+      }
+      renderListaMensagens();
+      //document.body.appendChild(img);
+    });
+  
+    socket.on('updateUsersList', listaUsuarios => {
+      listaUsuarios = JSON.parse(listaUsuarios);
+      console.log(socket.id);
+      if(!listaUsuarios){
+        return;
+      }
+      storeUserIdentification(listaUsuarios[socket.id]);
+      delete listaUsuarios[socket.id];
+      renderUsuariosAtivos(listaUsuarios);
+    });
+  
+    document.getElementById('file').addEventListener('change', function () {
+      let arquivo = this.files[0];
+      socket.emit('sendFile', { "arquivo": arquivo, "extensao": arquivo.type, "tamanho": arquivo.size, "arquivoNome": arquivo.name });
+      if (arquivo.type.includes('image')) {
+        //adicionaNovaImagem('meu', URL.createObjectURL(arquivo));
+        adicionaNovaImagem('meu', URL.createObjectURL(arquivo), arquivo.name);
+      } else {
+        //adicionaNovoDocumento('meu', URL.createObjectURL(arquivo));
+        adicionaNovoDocumento('meu', URL.createObjectURL(arquivo), { "arquivoNome": arquivo.name, "tamanho": arquivo.size });
+      }
+      renderListaMensagens();
+    });
+  
+   
+    document.addEventListener( "click", (event) => {
+      var element = event.target;
+      if(element.name = "userMessageTo"){
+        renderListaMensagens();
+      }
+    });
+    
+    document.getElementById('chatInput').addEventListener('focus', () => {
+      socket.emit('startTypingServer', 'usuário digitando');
+    });
+    document.getElementById('chatInput').addEventListener('focusout', () => {
+      socket.emit('stopTypingServer', 'usuário digitando');
+    });
+
+  }
 });
 
 
