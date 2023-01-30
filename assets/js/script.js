@@ -1,47 +1,61 @@
 
 let mensagens = [];
 const gerenciadorMensagens = {
-  "geral" : []
+  "geral": []
 };
 localStorage.getItem('currentColor') ? changeColor(localStorage.getItem('currentColor')) : '';
 
 $(function () {
-  document.getElementById('userName').addEventListener('change', (eventChange) => {
-    if(eventChange.target.value == ""){
+
+
+  $('#userColor').val(localStorage.getItem('currentColor') ?? '#16da40');
+
+  $('#btn-access').click(function (e) {
+    e.preventDefault();
+    let name = $('#userName').val();
+    if (name == "" || (name.length < 5 || name.length > 40)) {
+      $('#userName').addClass('error')
       return;
     }
-    document.getElementById('userNameInsert').remove();
-    socketFunctions(eventChange.target.value);
-    console.log('Conectando')
-  })
+
+    changeColor($('#userColor').val())
+    $('#userName').removeClass('error')
+    $('.modal').removeClass('active');
+    socketFunctions(name);
+  });
+  $('#color').click(function (e) {
+    e.preventDefault();
+    $('#colorChange').trigger('click');
+  });
+
+  $('#send-file').click(function (e) {
+    e.preventDefault();
+    $('#file').trigger('click');
+
+  });
+
+  $('#crypt-key').click(function (e) {
+    e.preventDefault();
+    $(this).toggleClass('active');
+  });
+
+  $('#chave').change(function (e) {
+    e.preventDefault();
+    renderListaMensagens();
+  });
+
+  $('#logout').click(function (e) {
+    e.preventDefault();
+    localStorage.clear();
+    location.reload();
+  });
 
   socketFunctions = (socketUserName) => {
     let ip_address = '192.168.1.36';
     let socket_port = '3000';
-    let socket = io(ip_address + ':' + socket_port, {  query: "socketUserName="+socketUserName });
+    let socket = io(ip_address + ':' + socket_port, { query: "socketUserName=" + socketUserName });
     let chatInput = $('#chatInput');
-  
-    $('#color').click(function (e) {
-      e.preventDefault();
-      $('#colorChange').trigger('click');
-    });
-  
-    $('#send-file').click(function (e) {
-      e.preventDefault();
-      $('#file').trigger('click');
-  
-    });
-  
-    $('#crypt-key').click(function (e) {
-      e.preventDefault();
-      $(this).toggleClass('active');
-    });
-  
-    $('#chave').change(function (e) {
-      e.preventDefault();
-      renderListaMensagens();
-    });
-  
+
     chatInput.keypress(function (e) {
       let message = $(this).html();
       message = stringToHTML(message.trim());
@@ -57,10 +71,10 @@ $(function () {
       }
       if (e.which === 13 && !e.shiftKey) {
         chaveAtual = getChaveCriptografia();
-        if(getSelectedUser() != 'geral'){
-          socket.emit('sendMessageTo', {"message":encrypt(message, chaveAtual), "to": getSelectedUser(), "from": localStorage.userId});
+        if (getSelectedUser() != 'geral') {
+          socket.emit('sendMessageTo', { "message": encrypt(message, chaveAtual), "to": getSelectedUser(), "from": localStorage.userId });
           adicionaNovaMensagem('meu', encrypt(message, chaveAtual), getSelectedUser());
-        }else{
+        } else {
           socket.emit('sendChatToServer', encrypt(message, chaveAtual));
           adicionaNovaMensagem('meu', encrypt(message, chaveAtual));
         }
@@ -69,26 +83,26 @@ $(function () {
         return false;
       }
     });
-  
+
     socket.on('sendChatToClient', (message) => {
       adicionaNovaMensagem('outros', message);
       renderListaMensagens();
     });
-  
+
     socket.on('typingStartClient', (message) => {
       document.getElementById('typingSpan').style.display = 'block';
     });
-  
+
     socket.on('typingStopClient', (message) => {
       document.getElementById('typingSpan').style.display = 'none';
     });
-    
+
     socket.on('sendMessageToUser', (message) => {
       console.log('Remetente:', message);
       adicionaNovaMensagem('outros', message.message, message.from);
       renderListaMensagens();
     });
-  
+
     socket.on('receivedFiles', fileReceived => {
       if (fileReceived.extensao.includes('image')) {
         imgSrc = `data:${fileReceived.extensao};base64,${fileReceived.arquivo}`;
@@ -102,18 +116,18 @@ $(function () {
       renderListaMensagens();
       //document.body.appendChild(img);
     });
-  
+
     socket.on('updateUsersList', listaUsuarios => {
       listaUsuarios = JSON.parse(listaUsuarios);
       console.log(socket.id);
-      if(!listaUsuarios){
+      if (!listaUsuarios) {
         return;
       }
       storeUserIdentification(listaUsuarios[socket.id]);
       delete listaUsuarios[socket.id];
       renderUsuariosAtivos(listaUsuarios);
     });
-  
+
     document.getElementById('file').addEventListener('change', function () {
       let arquivo = this.files[0];
       socket.emit('sendFile', { "arquivo": arquivo, "extensao": arquivo.type, "tamanho": arquivo.size, "arquivoNome": arquivo.name });
@@ -126,15 +140,15 @@ $(function () {
       }
       renderListaMensagens();
     });
-  
-   
-    document.addEventListener( "click", (event) => {
+
+
+    document.addEventListener("click", (event) => {
       var element = event.target;
-      if(element.name = "userMessageTo"){
+      if (element.name = "userMessageTo") {
         renderListaMensagens();
       }
     });
-    
+
     document.getElementById('chatInput').addEventListener('focus', () => {
       socket.emit('startTypingServer', 'usuário digitando');
     });
@@ -142,6 +156,12 @@ $(function () {
       socket.emit('stopTypingServer', 'usuário digitando');
     });
 
+  }
+
+  if (localStorage.getItem('userName')) {
+    socketFunctions(localStorage.getItem('userName'));
+  } else {
+    $('#login').addClass('active');
   }
 });
 
@@ -153,9 +173,9 @@ adicionaNovaMensagem = (origem, novaMensagem, from = 'geral') => {
     gerenciadorMensagens[from].push({ "origem": origem, "mensagem": novaMensagem, "type": 'mensagem' });
     return;
   }*/
-  try{
+  try {
     gerenciadorMensagens[from].push({ "origem": origem, "mensagem": novaMensagem, "type": 'mensagem' });
-  }catch(e){
+  } catch (e) {
     gerenciadorMensagens[from] = [];
     gerenciadorMensagens[from].push({ "origem": origem, "mensagem": novaMensagem, "type": 'mensagem' });
   }
@@ -166,9 +186,9 @@ adicionaNovaImagem = (origem, imagemSrc, nomeImagem, from = 'geral') => {
     mensagens.push({ "origem": origem, "mensagem": imagemSrc, "type": 'imagem', "nomeArquivo": nomeImagem });
     return;
   }*/
-  try{
+  try {
     gerenciadorMensagens[from].push({ "origem": origem, "mensagem": imagemSrc, "type": 'imagem', "nomeArquivo": nomeImagem });
-  }catch(e){
+  } catch (e) {
     gerenciadorMensagens[from] = [];
     gerenciadorMensagens[from].push({ "origem": origem, "mensagem": imagemSrc, "type": 'imagem', "nomeArquivo": nomeImagem });
   }
@@ -179,9 +199,9 @@ adicionaNovoDocumento = (origem, fileSrc, documento, from = 'geral') => {
     mensagens.push({ "origem": origem, "mensagem": fileSrc, "type": 'documento', "nomeArquivo": documento.arquivoNome, "tamanho": documento.tamanho });
     return;
   }*/
-  try{
+  try {
     gerenciadorMensagens[from].push({ "origem": origem, "mensagem": fileSrc, "type": 'documento', "nomeArquivo": documento.arquivoNome, "tamanho": documento.tamanho });
-  }catch(e){
+  } catch (e) {
     gerenciadorMensagens[from] = [];
     gerenciadorMensagens[from].push({ "origem": origem, "mensagem": fileSrc, "type": 'documento', "nomeArquivo": documento.arquivoNome, "tamanho": documento.tamanho });
   }
@@ -213,14 +233,14 @@ renderListaMensagens = () => {
 renderUsuariosAtivos = (listaUsuariosAtivos) => {
   let divUsuarios = $('.chat-users');
   divUsuarios.html('');
-  for (const chave in listaUsuariosAtivos){
-      divUsuarios.append(`<li id=${chave}><input type='radio' name='userMessageTo' value=${listaUsuariosAtivos[chave].socketId}>${listaUsuariosAtivos[chave].userName}</input></li>`);
+  for (const chave in listaUsuariosAtivos) {
+    divUsuarios.append(`<li id=${chave}><input type='radio' name='userMessageTo' value=${listaUsuariosAtivos[chave].socketId}>${listaUsuariosAtivos[chave].userName}</input></li>`);
   }
 }
 
 getSelectedUser = () => {
   let userChecked = $('input[name=userMessageTo]:checked').val();
-  if(userChecked){
+  if (userChecked) {
     return userChecked;
   }
   return "geral";

@@ -10,10 +10,6 @@
 
 <body>
   <div class="container">
-    <div id="userNameInsert">
-      <span>Insere teu nome aqui: </span>
-      <input type="text" id="userName" >
-    </div>
     <div class="row chat-row">
       <div class="chat-content">
         <ul> </ul>
@@ -28,6 +24,9 @@
           <span class="chat-btn" id="color">
             <i class="fa-solid fa-palette fa-lg"></i>
           </span>
+          <span class="chat-btn" id="logout">
+            <i class="fa-solid fa-right-from-bracket fa-lg"></i>
+          </span>
           <span class="chat-btn" id="crypt-key">
             <i class="fa fa-key fa-lg"></i>
           </span>
@@ -35,11 +34,12 @@
           <div class="chat-key">
             <input type="password" id="chave">
           </div>
+
           <input type="file" id="file" style="display:none">
         </div>
       </div>
       <div class="chat-users">
-        
+
       </div>
     </div>
   </div>
@@ -48,6 +48,21 @@
       South Laser &copy; 2023
     </a>
   </footer>
+  <!-- Mó Down -->
+
+  <div id="login" class="modal">
+    <h1>Bem vindo!</h1>
+    <hr>
+    <div class="form">
+      <label>Seu nome</label>
+      <input type="text" id="userName" autofocus>
+      <label>Cor</label>
+      <input type="color" id="userColor">
+      <button id="btn-access">Acessar</button>
+    </div>
+  </div>
+  <div class="blackout"></div>
+  <!--  -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/components/core-min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/components/sha256.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/components/enc-base64.js"></script>
